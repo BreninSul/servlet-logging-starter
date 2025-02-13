@@ -80,12 +80,13 @@ open class ServletLoggingFilter(
             }
             val id = servletLoggerService.getIdString()
             request.setAttribute(RQ_ID_ATTRIBUTE, id)
+
             val wrappedRequest = servletLoggerService.wrapRequest(request)
             val wrappedResponse = servletLoggerService.wrapResponse(wrappedRequest, response)
             try {
                 filterChain.doFilter(wrappedRequest, wrappedResponse)
-                if (wrappedRequest is ServletLogOnReadDelegate) {
-                    wrappedRequest.performActionIfNotPerformedBefore()
+                if (wrappedRequest is ServletLogOnReadRequest) {
+                    wrappedRequest.performLogActionIfNotPerformedBefore()
                     wrappedRequest.clear()
                 }
             } finally {

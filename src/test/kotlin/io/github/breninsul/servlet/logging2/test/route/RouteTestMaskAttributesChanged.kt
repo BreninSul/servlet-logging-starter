@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
 import kotlin.text.Charsets.UTF_8
 
 
-@TestPropertySource(locations = ["classpath:application-test-mask.properties"])
+@TestPropertySource(locations = ["classpath:application-test.properties"])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = [TestApplication::class, AnnotationConfigWebContextLoader::class])
 @RunWith(SpringJUnit4ClassRunner::class)
 class RouteTestMaskAttributesChanged {

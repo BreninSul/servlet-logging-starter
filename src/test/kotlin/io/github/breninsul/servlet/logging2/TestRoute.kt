@@ -1,6 +1,7 @@
 package io.github.breninsul.servlet.logging2
 
 import io.github.breninsul.logging2.FormBodyType
+import io.github.breninsul.logging2.JavaLoggingLevel
 import io.github.breninsul.logging2.JsonBodyType
 import io.github.breninsul.servlet.logging2.route.*
 import org.springframework.context.annotation.Bean
@@ -19,6 +20,7 @@ class TestRoute {
         return RouterFunctions
             .route()
             .POST("/test-route") { serverRq ->
+//                println("Came to test route")
                 return@POST ServerResponse.ok().body("Test Response")
             }.build()
     }
@@ -27,19 +29,20 @@ class TestRoute {
     fun testPostRouteCustomAttributes(): RouterFunction<ServerResponse> {
         return RouterFunctions
             .route()
-            .before {
-                it.logRequestId(false)
-                it.logRequestUri(false)
-                it.logRequestTookTime(false)
-                it.logRequestHeaders(false)
-                it.logRequestBody(false)
-                it.logResponseId(false)
-                it.logResponseUri(false)
-                it.logResponseTookTime(false)
-                it.logResponseHeaders(false)
-                it.logResponseBody(false)
-                it
-            }
+            .loggingLevel(JavaLoggingLevel.SEVERE)
+            .requestLoggingLevel(JavaLoggingLevel.SEVERE)
+            .responseLoggingLevel(JavaLoggingLevel.SEVERE)
+            .logRequestId(false)
+            .logRequestUri(false)
+            .logRequestTookTime(false)
+            .logRequestHeaders(false)
+            .logRequestBody(false)
+            .logResponseId(false)
+            .logResponseUri(false)
+            .logResponseTookTime(false)
+            .logResponseHeaders(false)
+            .logResponseBody(false)
+            .logRequest()
             .POST("/test-route-custom-config_attributes") { serverRq ->
                 return@POST ServerResponse.ok().body("Test Response")
             }.build()

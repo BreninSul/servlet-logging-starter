@@ -21,32 +21,11 @@ import kotlin.text.Charsets.UTF_8
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = [TestApplication::class])
 @ExtendWith(SpringExtension::class)
 @TestConfiguration
-class RouteTestPropertySetEmpty {
+class RouteTestAttributesSetEmpty {
 
     @Test
-    fun testLogEmptyPropsInfoRequest(){
-        val  request = HttpRequest.newBuilder()
-            .uri(URI.create("http://127.0.0.1:5367/test-route-custom-config_attributes"))
-            .POST(HttpRequest.BodyPublishers.ofString("Test Request", UTF_8))
-            .build();
-        val httpClient = HttpClient
-                .newBuilder()
-            .build();
-        var baos: ByteArrayOutputStream = ByteArrayOutputStream()
-        System.setOut(PrintStream(baos));
-        val send = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Thread.sleep(100)
-        val lines=baos.toString(UTF_8.name()).lines()
-        assert(lines.filter { it.contains("i.g.b.s.l.filter.ServletLoggingFilter") }.any { it.contains("ERROR") })
-
-        val firstLine=lines.indexOf("===========================Servlet Request begin===========================" )
-        val realLines=lines.subList(firstLine,lines.size)
-        assert(realLines[1].startsWith("===========================Servlet Request end  ==========================="))
-    }
-
-    @Test
-    fun testLogEmptyPropsInfoResponse(){
-        val  request = HttpRequest.newBuilder()
+    fun testLogEmptyPropsInfoRequest() {
+        val request = HttpRequest.newBuilder()
             .uri(URI.create("http://127.0.0.1:5367/test-route-custom-config_attributes"))
             .POST(HttpRequest.BodyPublishers.ofString("Test Request", UTF_8))
             .build();
@@ -57,9 +36,30 @@ class RouteTestPropertySetEmpty {
         System.setOut(PrintStream(baos));
         val send = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Thread.sleep(100)
-        val lines=baos.toString(UTF_8.name()).lines()
-        val firstLine=lines.indexOf("===========================Servlet Response begin===========================" )
-        val realLines=lines.subList(firstLine,lines.size)
+        val lines = baos.toString(UTF_8.name()).lines()
+        assert(lines.filter { it.contains("i.g.b.s.l.filter.ServletLoggingFilter") }.any { it.contains("ERROR") })
+
+        val firstLine = lines.indexOf("===========================Servlet Request begin===========================")
+        val realLines = lines.subList(firstLine, lines.size)
+        assert(realLines[1].startsWith("===========================Servlet Request end  ==========================="))
+    }
+
+    @Test
+    fun testLogEmptyPropsInfoResponse() {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("http://127.0.0.1:5367/test-route-custom-config_attributes"))
+            .POST(HttpRequest.BodyPublishers.ofString("Test Request", UTF_8))
+            .build();
+        val httpClient = HttpClient
+            .newBuilder()
+            .build();
+        var baos: ByteArrayOutputStream = ByteArrayOutputStream()
+        System.setOut(PrintStream(baos));
+        val send = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Thread.sleep(100)
+        val lines = baos.toString(UTF_8.name()).lines()
+        val firstLine = lines.indexOf("===========================Servlet Response begin===========================")
+        val realLines = lines.subList(firstLine, lines.size)
         assert(realLines[1].startsWith("===========================Servlet Response end  ==========================="))
     }
 }

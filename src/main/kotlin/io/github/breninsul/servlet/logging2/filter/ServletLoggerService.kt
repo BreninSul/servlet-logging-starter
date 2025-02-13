@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 BreninSul
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package io.github.breninsul.servlet.logging2.filter
 
 import io.github.breninsul.logging2.*
@@ -49,8 +73,8 @@ open class ServletLoggerService(
         val contentLengthBeforeInit = request.contentLengthLong
         val haveToLogBody = (request.logRequestBody() ?: properties.request.bodyIncluded) && contentLengthBeforeInit < maxBodySize
         val isMultipart = request.isMultipart()
-        if (haveToLogBody && request is ServletLogOnReadDelegate) {
-            request.delegate.initRead()
+        if (haveToLogBody && request is ServletLogOnReadRequest) {
+            request.initRead()
         }
         try {
             val logString =
@@ -78,10 +102,10 @@ open class ServletLoggerService(
                                     } else {
                                         val partContent =
                                             if (it.haveToLogContent()) {
-                                                if (request !is ServletLogOnReadDelegate) {
+                                                if (request !is ServletLogOnReadRequest) {
                                                     throw IllegalStateException("Cached request is required for body logging")
                                                 }
-                                                String(it.inputStream.use { i -> i.readAllBytes() }, request.delegate.getContentEncoding())
+                                                String(it.inputStream.use { i -> i.readAllBytes() }, request.getContentEncoding())
                                             } else {
                                                 "<FILE $size bytes>"
                                             }
@@ -90,10 +114,10 @@ open class ServletLoggerService(
                                 }
                         return@constructRqBody loggedParts
                     } else {
-                        if (request !is ServletLogOnReadDelegate) {
+                        if (request !is ServletLogOnReadRequest) {
                             throw IllegalStateException("Cached request is required for body logging")
                         }
-                        return@constructRqBody request.delegate.bodyContentString()
+                        return@constructRqBody request.bodyContentString()
                     }
                 }
             if (haveToLogBody && request is ServletCachingRequestWrapper) {
@@ -234,7 +258,8 @@ open class ServletLoggerService(
             request.logRequestBody(false)
             return request
         }
-        if (request is ServletLogOnReadDelegate) {
+        servletLogger.log(Level.FINE, "Came request ${request.getAttribute(RQ_ID_ATTRIBUTE)} ${request.method} ${request.requestURI}")
+        if (request is ServletLogOnReadRequest) {
             return request
         }
         val haveToLogBody = request.logRequestBody() ?: properties.request.bodyIncluded
@@ -256,7 +281,7 @@ open class ServletLoggerService(
         } else {
             ServletCachingRequestWrapperByteArray(request, false)
         }
-        return ServletLogOnReadDelegate(cachedRequest) { rq -> logRequest(rq) };
+        return ServletLogOnReadRequestDelegate(cachedRequest) { rq -> logRequest(rq) };
     }
 
     /**

@@ -3,14 +3,15 @@ package io.github.breninsul.servlet.logging2.examples;
 import io.github.breninsul.logging2.FormBodyType;
 import io.github.breninsul.logging2.JavaLoggingLevel;
 import io.github.breninsul.logging2.JsonBodyType;
+import io.github.breninsul.servlet.logging2.route.LogRequestRouteFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import static io.github.breninsul.servlet.logging2.RouterConfigAttributesKt.*;
 
@@ -45,6 +46,8 @@ public class ExampleJavaRoutes {
                             FormBodyType.INSTANCE, List.of("yourFormFieldyNameToMask", "authorisation")));
                     return rq;
                 })
+                //Add filter to log request if body is not beeng read
+                .filter(LogRequestRouteFilter.INSTANCE)
                 .POST("/example-attributes-route-kotlin-before", serverRq ->
                         ServerResponse
                                 .ok()

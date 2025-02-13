@@ -31,6 +31,19 @@ import org.springframework.web.servlet.function.RouterFunctions.Builder
 import org.springframework.web.servlet.function.ServerRequest
 import java.util.function.Consumer
 
+/**
+ * Adds a filter to the route builder that logs the request when the body
+ * has not been read.
+ *
+ * The filter ensures that the request body is logged during the
+ * request-handling process if it hasn't already been logged (If
+ * InputStream is not readen). This can be useful for debugging or
+ * monitoring purposes.
+ *
+ * @return The updated `Builder` instance with the `LogRequestRouteFilter`
+ *    applied.
+ */
+fun Builder.logRequest(): Builder = this.filter(LogRequestRouteFilter)
 
 fun Builder.processRequest(consumer: Consumer<ServerRequest>) = this
     .before { rq ->

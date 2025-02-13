@@ -26,8 +26,16 @@ package io.github.breninsul.servlet.logging2
 
 import io.github.breninsul.logging2.HttpBodyType
 import io.github.breninsul.logging2.JavaLoggingLevel
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.web.servlet.function.ServerRequest
 
+fun ServerRequest.logRequest(): HttpServletRequest? {
+    val servletRequest = this.servletRequest()
+    if (servletRequest is ServletLogOnReadRequest) {
+        servletRequest.performLogActionIfNotPerformedBefore()
+    }
+    return servletRequest
+}
 
 fun ServerRequest.loggingLevel(level: JavaLoggingLevel?) = this.servletRequest().loggingLevel(level)
 fun ServerRequest.loggingLevel() = this.servletRequest().loggingLevel()

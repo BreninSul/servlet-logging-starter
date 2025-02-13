@@ -46,6 +46,8 @@ class ExampleKotlinRoutes {
                     FormBodyType to listOf("yourFormFieldyNameToMask", "authorisation")
                 )
             )
+            //Add filter to log request if body is not beeng read
+            .logRequest()
             .POST("/example-attributes-route-kotlin-builder") { serverRq ->
                 return@POST ServerResponse
                     .ok()
