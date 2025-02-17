@@ -1,6 +1,5 @@
 package io.github.breninsul.servlet.logging2.handlerResolver
 
-import io.github.breninsul.servlet.logging2.ServletLoggerProperties
 import io.github.breninsul.servlet.logging2.annotation.ServletLoggingFilter
 import io.github.breninsul.servlet.logging2.annotation.toServletLoggerProperties
 import jakarta.servlet.http.HttpServletRequest
@@ -20,27 +19,29 @@ open class DefaultRequestHandlerLoggingAnnotationResolver(protected open val han
 
     protected open val logger: Logger = Logger.getLogger(DefaultRequestHandlerLoggingAnnotationResolver::class.java.name)
     protected open val debugLoggingLevel = Level.FINEST
-    override fun findAnnotationSettings(request: HttpServletRequest):Optional<ServletLoggerProperties> {
+    override fun findHandlerSettings(request: HttpServletRequest): RequestHandlerResult {
         val time = System.nanoTime()
-        val handlerMethod = findHandlerMethod(request)
-        val annotation = handlerMethod
+        val controllerMethod = findControllerHandlerMethod(request)
+        val type = if (controllerMethod != null) Controller else if (isRouterMapping(request)) Router else Unknown
+
+        val annotation = controllerMethod
             //Get anno from method
             ?.getAnnotation(ServletLoggingFilter::class.java)
         //Or class
-            ?: handlerMethod?.declaringClass?.getAnnotation(ServletLoggingFilter::class.java)
+            ?: controllerMethod?.declaringClass?.getAnnotation(ServletLoggingFilter::class.java)
         val result = Optional.ofNullable(annotation?.toServletLoggerProperties())
         logger.log(debugLoggingLevel, "Resolving controller took ${System.nanoTime() - time} ns")
-        return result
+        return RequestHandlerResult(type, result)
     }
 
-    override fun isRouterMapping(request: HttpServletRequest): Boolean {
+    protected open fun isRouterMapping(request: HttpServletRequest): Boolean {
         val time = System.nanoTime()
         val anyRouter = routerMappings.asSequence().mapNotNull { handles(request, it).orElse(null)?.handler }.any()
         logger.log(debugLoggingLevel, "Resolving router took ${System.nanoTime() - time} ns")
         return anyRouter
     }
 
-    protected open fun findHandlerMethod(request: HttpServletRequest): Method? {
+    protected open fun findControllerHandlerMethod(request: HttpServletRequest): Method? {
         val matchingHandlers = controllerMappings
             .asSequence()
             .mapNotNull { handles(request, it).orElse(null)?.handler }

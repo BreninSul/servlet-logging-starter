@@ -1,8 +1,6 @@
 package io.github.breninsul.servlet.logging2.handlerResolver
 
-import io.github.breninsul.servlet.logging2.ServletLoggerProperties
 import jakarta.servlet.http.HttpServletRequest
-import java.util.*
 
 /**
  * Defines a contract for resolving the appropriate method handler (often a controller method)
@@ -10,16 +8,17 @@ import java.util.*
  */
 interface RequestHandlerLoggingAnnotationResolver {
     /**
-     * Finds and retrieves the annotation settings associated with the given HTTP request.
-     * The method identifies the specific handler method corresponding to the request
-     * and checks for configured logging settings, which may include details for
-     * logging HTTP requests and responses.
+     * Attempts to find and resolve the annotation settings for a given
+     * HTTP request. The annotation settings typically provide metadata or
+     * configuration for how the request should be processed or logged within
+     * the system.
      *
-     * @param request The HttpServletRequest object representing the incoming HTTP request.
-     * @return An Optional containing the ServletLoggerProperties if annotation settings are found,
-     *         or an empty Optional if no settings are available for the provided request.
+     * @param request the HTTP request for which annotation settings are being
+     *    resolved
+     * @return a result containing the handler type and optional annotation
+     *    properties, which may provide additional configuration for request
+     *    handling
      */
-    fun findAnnotationSettings(request: HttpServletRequest): Optional<ServletLoggerProperties>
+    fun findHandlerSettings(request: HttpServletRequest): RequestHandlerResult
 
-    fun isRouterMapping(request: HttpServletRequest): Boolean
 }

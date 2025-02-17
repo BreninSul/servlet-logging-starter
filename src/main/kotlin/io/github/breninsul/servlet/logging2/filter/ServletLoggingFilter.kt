@@ -27,6 +27,7 @@ package io.github.breninsul.servlet.logging2.filter
 import io.github.breninsul.servlet.logging2.*
 import io.github.breninsul.servlet.logging2.handlerResolver.DefaultRequestHandlerLoggingAnnotationResolver
 import io.github.breninsul.servlet.logging2.handlerResolver.RequestHandlerLoggingAnnotationResolver
+import io.github.breninsul.servlet.logging2.handlerResolver.Router
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -63,17 +64,18 @@ open class ServletLoggingFilter(
         val time = System.currentTimeMillis()
         request.setAttribute(START_TIME_ATTRIBUTE, time)
         try {
-            if (properties.resolveHandlerAnnotation) {
-                val annotationOptional = requestHandlerResolver.findAnnotationSettings(request)
-                if (annotationOptional.isPresent) {
-                    val annotation = annotationOptional.get()
+            val isNotRouter = if (properties.resolveHandlerAnnotation) {
+                val handlerSettings = requestHandlerResolver.findHandlerSettings(request)
+                if (handlerSettings.annotationProperties.isPresent) {
+                    val annotation = handlerSettings.annotationProperties.get()
                     //Ignore filter if logging disabled
                     if (!annotation.enabled) {
                         return filterChain.doFilter(request, response)
                     }
                     request.setAnnotationPropertiesToRequestAttributes(annotation)
                 }
-            }
+                handlerSettings.type != Router
+            } else false
             //Ignore filter if logging disabled
             if (!(request.loggingEnabled() ?: properties.enabled)) {
                 return filterChain.doFilter(request, response)
@@ -84,6 +86,10 @@ open class ServletLoggingFilter(
             val wrappedRequest = servletLoggerService.wrapRequest(request)
             val wrappedResponse = servletLoggerService.wrapResponse(wrappedRequest, response)
             try {
+                //If it's route we can't log it before now, because log settings can be passed from attributes that is not set yet
+                if (wrappedRequest is ServletLogOnReadRequest && isNotRouter) {
+                    wrappedRequest.performLogActionIfNotPerformedBefore()
+                }
                 filterChain.doFilter(wrappedRequest, wrappedResponse)
                 if (wrappedRequest is ServletLogOnReadRequest) {
                     wrappedRequest.performLogActionIfNotPerformedBefore()
