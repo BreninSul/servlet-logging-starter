@@ -63,7 +63,7 @@ dependencies {
     compileOnly("org.springframework.boot:spring-boot-starter:$springBootVersion")
     compileOnly("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     api("io.github.breninsul:servlet-caching-request:1.1.3")
-    api("io.github.breninsul:http-logging-commons-2:2.1.0")
+    api("io.github.breninsul:http-logging-commons-2:2.1.1")
     kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.testcontainers:junit-jupiter")
