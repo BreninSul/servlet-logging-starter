@@ -32,7 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory
+import org.springframework.boot.web.server.servlet.ServletWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.web.servlet.HandlerMapping
 
@@ -58,8 +58,8 @@ open class ServletLoggerConfiguration {
 
         val registrationBean = FilterRegistrationBean<ServletLoggingFilter>()
         val loggingFilter = ServletLoggingFilter(servletLoggerService = service, properties = properties, handlerMappings = handlerMappings)
-        registrationBean.filter = loggingFilter
-        registrationBean.order = loggingFilter.order
+        registrationBean.setFilter(loggingFilter)
+        registrationBean.setOrder(loggingFilter.order)
         return registrationBean
     }
 

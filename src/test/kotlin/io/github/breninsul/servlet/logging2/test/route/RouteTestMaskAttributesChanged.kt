@@ -2,10 +2,8 @@ package io.github.breninsul.servlet.logging2.test.route
 
 import io.github.breninsul.servlet.logging2.TestApplication
 import org.junit.jupiter.api.Test
-import org.junit.runner.RunWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.AnnotationConfigWebContextLoader
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -20,7 +18,6 @@ import kotlin.text.Charsets.UTF_8
 
 @TestPropertySource(locations = ["classpath:application-test.properties"])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = [TestApplication::class, AnnotationConfigWebContextLoader::class])
-@RunWith(SpringJUnit4ClassRunner::class)
 class RouteTestMaskAttributesChanged {
 
     @Test

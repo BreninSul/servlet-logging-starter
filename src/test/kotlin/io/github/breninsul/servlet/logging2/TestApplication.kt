@@ -2,12 +2,10 @@ package io.github.breninsul.servlet.logging2
 
 import io.github.breninsul.servlet.logging2.filter.ServletLoggingFilter
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration
 import org.springframework.boot.runApplication
 import java.util.logging.*
 
 @SpringBootApplication(
-    exclude = [WebSocketServletAutoConfiguration::class],
     scanBasePackageClasses = [ServletLoggerConfiguration::class, TestRoute::class,TestController::class]
 )
 class TestApplication

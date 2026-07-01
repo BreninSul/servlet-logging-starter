@@ -22,25 +22,29 @@
  * SOFTWARE.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    val kotlinVersion = "2.0.0"
-    val springBootVersion = "3.4.3"
+    val kotlinVersion = "2.2.0"
+    val springBootVersion = "4.1.0"
     id("java-library")
     id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.2.4"
     id("org.springframework.boot") version springBootVersion
-    id("io.spring.dependency-management") version "1.1.5"
+    id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlin.jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.kapt") version kotlinVersion
     id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka-javadoc") version "2.0.0"
 }
 
-val kotlinVersion = "2.0.0"
-val javaVersion = JavaVersion.VERSION_17
-val springBootVersion = "3.4.3"
+val kotlinVersion = "2.2.0"
+val javaVersion = JavaVersion.VERSION_21
+val springBootVersion = "4.1.0"
 
 group = "io.github.breninsul"
-version = "2.1.3"
+version = "2.1.4"
 
 java {
     sourceCompatibility = javaVersion
@@ -62,11 +66,11 @@ tasks.compileKotlin {
 dependencies {
     compileOnly("org.springframework.boot:spring-boot-starter:$springBootVersion")
     compileOnly("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-    api("io.github.breninsul:servlet-caching-request:1.1.3")
+    api("io.github.breninsul:servlet-caching-request:2.0.0")
     api("io.github.breninsul:http-logging-commons-2:2.1.1")
     kapt("org.springframework.boot:spring-boot-autoconfigure-processor")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
-    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
     testImplementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
@@ -75,20 +79,33 @@ dependencies {
 }
 val javadocJar =
     tasks.named<Jar>("javadocJar") {
-        from(tasks.named("dokkaJavadoc"))
+        from(tasks.named("dokkaGeneratePublicationJavadoc"))
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 tasks.getByName<Jar>("jar") {
     enabled = true
     archiveClassifier = ""
 }
+tasks.named("bootJar") {
+    enabled = false
+}
 
 kotlin {
     jvmToolchain(javaVersion.majorVersion.toInt())
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
 }
 
 signing {
-    useGpgCmd()
+    val signingKey: String? = (findProperty("signingKey") as String?) ?: System.getenv("SIGNING_KEY")
+    val signingPassword: String? = (findProperty("signingPassword") as String?) ?: System.getenv("SIGNING_PASSWORD")
+    if (!signingKey.isNullOrBlank()) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    } else {
+        useGpgCmd()
+    }
 }
 
 val repoName = "servlet-logging-starter"
